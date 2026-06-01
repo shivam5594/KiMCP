@@ -83,19 +83,28 @@ kimcp --help
 
 ```bash
 # Start the server (STDIO transport — for Claude Code / Claude Desktop)
+uv run kimcp --transport stdio
+
+# Or, if installed in an activated venv:
 kimcp --transport stdio
 ```
 
 ### Connect to Claude Code
 
-Add to your MCP configuration:
+Create a `.mcp.json` in the project root (or add to your global MCP config).
+Use `uv run` so the server launches correctly regardless of working directory:
 
 ```json
 {
   "mcpServers": {
     "kimcp": {
-      "command": "kimcp",
-      "args": ["--transport", "stdio"]
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory", "/path/to/KiMCP",
+        "kimcp",
+        "--transport", "stdio"
+      ]
     }
   }
 }
