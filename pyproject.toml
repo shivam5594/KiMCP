@@ -1,0 +1,230 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kimcp"
+version = "0.0.0"
+description = "KiCAD Model Context Protocol server — every KiCAD feature as an MCP tool, with first-class electrical-CAD best-practices."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.11"
+authors = [{ name = "Shivam Chauhan" }]
+keywords = ["kicad", "mcp", "model-context-protocol", "eda", "pcb", "schematic"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: Microsoft :: Windows",
+  "Intended Audience :: Developers",
+  "Topic :: Scientific/Engineering",
+]
+dependencies = [
+  "pydantic>=2.6",
+  "watchdog>=4.0",
+  "platformdirs>=4.0",
+]
+
+[project.optional-dependencies]
+http = [
+  "anyio>=4.0",
+  "starlette>=0.37",
+  "uvicorn>=0.27",
+  "sse-starlette>=2.0",
+]
+ipc = [
+  # kicad-python ships the generated protobuf bindings for KiCAD's IPC API
+  # and transitively pins `protobuf >=5.29, <6` and `pynng >=0.9.0, <0.10.0`.
+  # We import only `kipy.proto.*` — see ADR-0015 for the why-not-their-API
+  # rationale.
+  #
+  # Version coupling: 0.6.0 was generated against KiCAD 9.0.7 protos.
+  # KiCAD 10.x runs over the wire for the stable subset (Ping, GetVersion,
+  # GetOpenDocuments, board reads) but 10-only additions are NOT visible
+  # until upstream ships a 0.7 release rebuilt against KiCAD 10. Bump the
+  # upper bound here and the README support matrix in lockstep.
+  "kicad-python>=0.6.0,<0.7",
+]
+fast = []  # reserved for future PyO3 Rust extension (see ADR-0002)
+dev = [
+  "pytest>=8.0",
+  "pytest-asyncio>=0.23",
+  "hypothesis>=6.100",
+  "ruff>=0.3",
+  "mypy>=1.9",
+  "coverage[toml]>=7.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/shivam-chauhan/kimcp"
+Repository = "https://github.com/shivam-chauhan/kimcp"
+Issues = "https://github.com/shivam-chauhan/kimcp/issues"
+
+[project.scripts]
+kimcp = "kimcp.__main__:main"
+kimcp-cli = "kimcp.admin:main"
+
+# Built-in tools register themselves through the same entry-point group that
+# external packages use (ADR-0005). Dogfood the plugin mechanism from day one.
+[project.entry-points."kimcp.tools"]
+ping = "kimcp.tools.builtin.ping:PingTool"
+version = "kimcp.tools.builtin.version:VersionTool"
+config_show = "kimcp.tools.builtin.config_show:ConfigShowTool"
+kicad_version = "kimcp.tools.builtin.kicad_version:KiCadVersionTool"
+kicad_ipc_status = "kimcp.tools.builtin.kicad_ipc_status:KiCadIpcStatusTool"
+ipc_get_version = "kimcp.tools.builtin.ipc_get_version:IpcGetVersionTool"
+pcb_drc = "kimcp.tools.builtin.pcb_drc:PcbDrcTool"
+pcb_drc_violations = "kimcp.tools.builtin.pcb_drc_violations:PcbDrcViolationsTool"
+pcb_export_gerbers = "kimcp.tools.builtin.pcb_export_gerbers:PcbExportGerbersTool"
+pcb_export_drill = "kimcp.tools.builtin.pcb_export_drill:PcbExportDrillTool"
+pcb_export_step = "kimcp.tools.builtin.pcb_export_step:PcbExportStepTool"
+pcb_export_pos = "kimcp.tools.builtin.pcb_export_pos:PcbExportPosTool"
+pcb_export_pdf = "kimcp.tools.builtin.pcb_export_pdf:PcbExportPdfTool"
+pcb_export_svg = "kimcp.tools.builtin.pcb_export_svg:PcbExportSvgTool"
+pcb_export_dxf = "kimcp.tools.builtin.pcb_export_dxf:PcbExportDxfTool"
+pcb_list_footprints = "kimcp.tools.builtin.pcb_list_footprints:PcbListFootprintsTool"
+pcb_list_tracks = "kimcp.tools.builtin.pcb_list_tracks:PcbListTracksTool"
+pcb_get_stackup = "kimcp.tools.builtin.pcb_get_stackup:PcbGetStackupTool"
+sch_erc = "kimcp.tools.builtin.sch_erc:SchErcTool"
+sch_export_netlist = "kimcp.tools.builtin.sch_export_netlist:SchExportNetlistTool"
+sch_export_bom = "kimcp.tools.builtin.sch_export_bom:SchExportBomTool"
+sch_export_pdf = "kimcp.tools.builtin.sch_export_pdf:SchExportPdfTool"
+sch_export_svg = "kimcp.tools.builtin.sch_export_svg:SchExportSvgTool"
+sch_set_title_block = "kimcp.tools.builtin.sch_set_title_block:SchSetTitleBlockTool"
+sch_add_symbol = "kimcp.tools.builtin.sch_add_symbol:SchAddSymbolTool"
+sch_add_wire = "kimcp.tools.builtin.sch_add_wire:SchAddWireTool"
+sch_add_junction = "kimcp.tools.builtin.sch_add_junction:SchAddJunctionTool"
+sch_add_label = "kimcp.tools.builtin.sch_add_label:SchAddLabelTool"
+sch_add_power = "kimcp.tools.builtin.sch_add_power:SchAddPowerTool"
+sch_embed_lib_symbol = "kimcp.tools.builtin.sch_embed_lib_symbol:SchEmbedLibSymbolTool"
+sch_add_no_connect = "kimcp.tools.builtin.sch_add_no_connect:SchAddNoConnectTool"
+sch_delete = "kimcp.tools.builtin.sch_delete:SchDeleteTool"
+sch_list_symbols = "kimcp.tools.builtin.sch_list_symbols:SchListSymbolsTool"
+sch_list_labels = "kimcp.tools.builtin.sch_list_labels:SchListLabelsTool"
+sch_list_nets = "kimcp.tools.builtin.sch_list_nets:SchListNetsTool"
+sch_list_wires = "kimcp.tools.builtin.sch_list_wires:SchListWiresTool"
+sch_add_sheet = "kimcp.tools.builtin.sch_add_sheet:SchAddSheetTool"
+sch_compose = "kimcp.tools.builtin.sch_compose:SchComposeTool"
+lib_list_symbols = "kimcp.tools.builtin.lib_list_symbols:LibListSymbolsTool"
+lib_list_footprints = "kimcp.tools.builtin.lib_list_footprints:LibListFootprintsTool"
+lib_search_symbol = "kimcp.tools.builtin.lib_search_symbol:LibSearchSymbolTool"
+lib_search_footprint = "kimcp.tools.builtin.lib_search_footprint:LibSearchFootprintTool"
+lib_add_symbol = "kimcp.tools.builtin.lib_add_symbol:LibAddSymbolTool"
+lib_add_footprint = "kimcp.tools.builtin.lib_add_footprint:LibAddFootprintTool"
+lib_register_library = "kimcp.tools.builtin.lib_register_library:LibRegisterLibraryTool"
+lib_attach_3d_model = "kimcp.tools.builtin.lib_attach_3d_model:LibAttach3dModelTool"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kimcp"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/tests",
+  "/pyproject.toml",
+  "/README.md",
+  "/LICENSE",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "N", "ASYNC", "RUF"]
+ignore = [
+  "E501",    # line length handled by formatter
+  "SIM105",  # contextlib.suppress is not always clearer
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests: `assert` form + method-name casing are fine in test code. Blocking
+# path calls inside `async def` tests are also fine — tests don't need the
+# trio/anyio async-filesystem ceremony. `timeout=` in test-local fake
+# coroutines has to match the production signature it stubs, so ASYNC109 is
+# noise in test code.
+"tests/**" = ["B011", "N802", "ASYNC240", "ASYNC109"]
+# The CLI subprocess runner intentionally exposes `timeout=` as a kwarg —
+# that's the idiomatic public API for a batch subprocess runner and wrapping
+# every call in `asyncio.timeout()` at the call site would be strictly worse.
+"src/kimcp/cli/runner.py" = ["ASYNC109"]
+# Same rationale for the IPC probe: `timeout=` is the public contract
+# callers pass down from `CliBackend` / `IpcBackend` / dispatcher layers.
+"src/kimcp/ipc/probe.py" = ["ASYNC109"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+  "integration: requires real KiCAD backends (opt-in via -m integration)",
+  "golden: golden-file tests against S-expression fixtures",
+  "property: hypothesis property-based tests",
+  "e2e: end-to-end transport + tool + backend tests",
+  "bench: benchmark tests (opt-in)",
+  "fuzz: fuzzing tests (opt-in)",
+  "compat: requires KiCAD 7/8 back-port (opt-in via KIMCP_COMPAT_MATRIX=1)",
+]
+filterwarnings = [
+  "error",
+  # pynng + protobuf occasionally surface DeprecationWarnings from their
+  # generated code / internal plumbing. We're not the ones generating it,
+  # and `error` would make unrelated tests explode on the first import.
+  "ignore::DeprecationWarning:pynng.*",
+  "ignore::DeprecationWarning:google.protobuf.*",
+  "ignore::DeprecationWarning:kipy.*",
+]
+
+[tool.coverage.run]
+source = ["src/kimcp"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "raise NotImplementedError",
+  "if TYPE_CHECKING:",
+  "\\.\\.\\.",
+]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_explicit = false
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+# Tests are allowed to be partially annotated: pytest fixtures pass through as
+# untyped parameters, and adding typing just for a fixture's callable shape is
+# noise. We stay strict on production source (`src/`) and loose here.
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+[[tool.mypy.overrides]]
+# Optional-extra deps for the IPC path. None of these ship py.typed stubs
+# that mypy can consume:
+#   - pynng (0.9.x) — no stubs published on PyPI.
+#   - kipy  (0.6.x) — MIT, but distributed without a py.typed marker.
+#   - google.protobuf — stubs exist (`types-protobuf`) but installing them
+#     pulls in a heavyweight toolchain, and the generated `kipy.proto.*`
+#     classes are `Any`-ish either way. Suppressing is strictly less noise.
+# Keeping the error off on the module boundary is acceptable because
+# `IpcBackend.call()` only touches these through narrow wrappers that
+# we do type against our own error hierarchy.
+module = [
+  "pynng",
+  "pynng.*",
+  "kipy",
+  "kipy.*",
+  "google.protobuf",
+  "google.protobuf.*",
+]
+ignore_missing_imports = true

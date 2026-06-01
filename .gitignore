@@ -1,0 +1,60 @@
+# -------- Python --------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# -------- Build artifacts --------
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+develop-eggs/
+sdist/
+wheels/
+share/python-wheels/
+MANIFEST
+
+# -------- Virtual environments --------
+.venv/
+venv/
+env/
+ENV/
+
+# -------- Testing / coverage / type-checking --------
+.tox/
+.nox/
+.coverage
+.coverage.*
+.pytest_cache/
+.cache
+coverage.xml
+htmlcov/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+dmypy.json
+
+# -------- IDE / editor --------
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# -------- OS --------
+.DS_Store
+Thumbs.db
+
+# -------- KiMCP project-local state --------
+# Snapshots, audit logs, caches live under <project>/.kimcp/
+.kimcp/
+logs/
+
+# -------- Research scratch (not part of the package) --------
+research/*/node_modules/
+research/*/__pycache__/
+research/*/.venv/
