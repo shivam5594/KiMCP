@@ -136,6 +136,48 @@ should know about before approving.
 
 ---
 
+## CRITICAL: Schematic Readability Rules
+
+When you implement the approved design, you MUST follow these rules:
+
+### Wire-first connectivity (NO label spam)
+
+**Connect nearby pins with WIRES (sch_add_wire), NOT labels (sch_add_label).**
+
+Labels are net-name references, not a general connection mechanism. A human \
+reads a schematic by following wires — labels break visual flow and make the \
+schematic unreadable when overused.
+
+**Legitimate label uses (single-digit count per sheet):**
+- Cross-sheet connectivity (global/hierarchical labels)
+- Distinguishing ground domains (AGND, DGND, PGND)
+- Naming electrically important signals (CLK, SDA, MOSI, nRESET)
+- Long-distance same-sheet nets where wire routing would be visually noisy
+
+**Power symbols (GND, +12V, +32V) via sch_add_power are fine** — they are \
+the standard KiCAD convention for marking power rails. But every component's \
+pin-to-pin connection on the same sheet MUST be a wire, not a label.
+
+**Bad example (label spam):**
+```
+U1.VIN ← label "+32V"    C1.pin1 ← label "+32V"    (NO! Use a wire)
+U1.GND ← label "GND"     C1.pin2 ← label "GND"     (NO! GND power symbol is OK, but wire between nearby pins)
+```
+
+**Good example (wire-first):**
+```
+U1.VIN ──wire──→ C1.pin1   (direct wire connection)
+U1.GND ──wire──→ C1.pin2 ──wire──→ GND_power_symbol   (wire to shared GND)
+```
+
+### Layout spacing
+- Place components on 2.54mm (100-mil) grid
+- Minimum ~5mm between symbol bounding boxes
+- Route wires as orthogonal H/V segments
+- Add junctions (sch_add_junction) at every T-connection
+
+---
+
 **After presenting the proposal, ask:**
 
 > Does this design look good? I can proceed to create the schematic, or \
