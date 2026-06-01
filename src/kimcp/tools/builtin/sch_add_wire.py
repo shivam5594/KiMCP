@@ -133,14 +133,14 @@ class SchAddWireTool(Tool[SchAddWireInput, SchAddWireOutput]):
         "sheet — prefer it over sch_add_label whenever a routable path "
         "exists. Wires are what a human reads when following connectivity; "
         "labels are net-name references and should be used sparingly. "
+        "To get precise wire endpoints, call sch_get_symbol_pins first to "
+        "obtain the absolute (x, y) coordinates of each symbol's pins, "
+        "then wire between those coordinates. Do NOT guess pin positions. "
         "Multi-segment polylines are built by repeated calls (one wire per "
         "segment), typically routed as orthogonal H/V runs aligned to the "
-        "schematic grid. No junctions are auto-inserted at endpoints — use "
-        "sch_add_junction where a wire terminates on an existing wire. "
-        "Coordinates snap to safety.grid_snap_mm (default 2.54 mm) so wire "
-        "endpoints land on the eeschema grid; off-grid endpoints would "
-        "produce endpoint_off_grid ERC warnings (cites KICAD-318). Supports "
-        "dry_run; snapshots the project before writing per ADR-0008."
+        "schematic grid. Use sch_add_junction where a wire terminates on "
+        "an existing wire. Coordinates snap to safety.grid_snap_mm "
+        "(default 2.54 mm). Supports dry_run; snapshots per ADR-0008."
     )
     input_model = SchAddWireInput
     output_model = SchAddWireOutput

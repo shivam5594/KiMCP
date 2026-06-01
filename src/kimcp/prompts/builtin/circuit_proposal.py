@@ -105,6 +105,20 @@ Include: main IC, inductors, capacitors (input/output), resistors (feedback \
 divider, current sense), diodes, MOSFETs if external, and protection components. \
 Use real, orderable part numbers — not generic placeholders.
 
+### 2b. Library Availability
+
+For each component, indicate where the KiCAD symbol comes from:
+
+| Part | KiCAD Built-in? | Available Online? | Needs Custom Creation? |
+|------|-----------------|-------------------|----------------------|
+
+- **Built-in**: available in KiCAD's standard libraries (Device, Connector, etc.)
+- **Online**: downloadable .kicad_sym from SnapEDA, Ultra Librarian, or manufacturer
+- **Custom**: no existing symbol found — must create with lib_add_symbol
+
+Ask the user: "Shall I search online for the unavailable symbols? Downloaded \
+symbols will be saved to your local library for future projects."
+
 ### 3. Design Parameters
 
 | Parameter | Value | Notes |

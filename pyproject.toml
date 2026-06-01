@@ -105,6 +105,7 @@ sch_embed_lib_symbol = "kimcp.tools.builtin.sch_embed_lib_symbol:SchEmbedLibSymb
 sch_add_no_connect = "kimcp.tools.builtin.sch_add_no_connect:SchAddNoConnectTool"
 sch_delete = "kimcp.tools.builtin.sch_delete:SchDeleteTool"
 sch_list_symbols = "kimcp.tools.builtin.sch_list_symbols:SchListSymbolsTool"
+sch_get_symbol_pins = "kimcp.tools.builtin.sch_get_symbol_pins:SchGetSymbolPinsTool"
 sch_list_labels = "kimcp.tools.builtin.sch_list_labels:SchListLabelsTool"
 sch_list_nets = "kimcp.tools.builtin.sch_list_nets:SchListNetsTool"
 sch_list_wires = "kimcp.tools.builtin.sch_list_wires:SchListWiresTool"
