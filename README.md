@@ -63,12 +63,21 @@ All without ever opening the KiCAD GUI.
 git clone https://github.com/shivam5594/KiMCP.git
 cd KiMCP
 
+# Create a virtual environment with Python 3.11+
+python3.12 -m venv .venv
+source .venv/bin/activate      # Linux / macOS
+# .venv\Scripts\activate       # Windows
+
 # Install in development mode
 pip install -e ".[dev]"
 
 # Verify installation
 kimcp --help
 ```
+
+> **Troubleshooting:** If you see `requires a different Python`, your default
+> `python`/`pip` points to an older version. Create the venv explicitly with
+> `python3.12` (or `python3.11` / `python3.13`) as shown above.
 
 ### Run the MCP Server
 
