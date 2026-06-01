@@ -163,20 +163,18 @@ def test_config_validate_rejects_bad_min_version(
 # -- tools list ------------------------------------------------------------
 
 
-def test_tools_list_uses_tabs_and_has_four_columns(
+def test_tools_list_raw_uses_tabs_and_has_three_columns(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    """Each row is ``<name>\\t<version>\\t<description>`` — pin the format.
+    """``--format raw`` emits ``<name>\\t<version>\\t<description>`` per line.
 
     Admin scripts parse this with ``cut -f1`` / similar; changing
     separator or column order is a breaking change for them.
     """
-    rc = main(["tools", "list"])
+    rc = main(["tools", "list", "--format", "raw"])
     assert rc == 0
     captured = capsys.readouterr()
     if not captured.out.strip():
-        # Entry-points may be empty in a stripped test env. Acceptable —
-        # the other tests cover the populated path.
         pytest.skip("no tools discovered in this environment")
     for line in captured.out.splitlines():
         parts = line.split("\t")
@@ -186,11 +184,11 @@ def test_tools_list_uses_tabs_and_has_four_columns(
         assert version  # non-empty
 
 
-def test_tools_list_is_sorted_by_name(
+def test_tools_list_raw_is_sorted_by_name(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     """Deterministic ordering — admin scripts depend on stable output."""
-    rc = main(["tools", "list"])
+    rc = main(["tools", "list", "--format", "raw"])
     assert rc == 0
     captured = capsys.readouterr()
     if not captured.out.strip():
@@ -199,7 +197,7 @@ def test_tools_list_is_sorted_by_name(
     assert names == sorted(names)
 
 
-def test_tools_list_includes_known_builtin(
+def test_tools_list_table_includes_known_builtin(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     """``ping`` is one of the stable built-in tools — sanity check that
@@ -213,7 +211,40 @@ def test_tools_list_includes_known_builtin(
     captured = capsys.readouterr()
     if not captured.out.strip():
         pytest.skip("no tools discovered in this environment")
-    names = [line.split("\t", 1)[0] for line in captured.out.splitlines()]
-    # ``ping`` is one of the earliest tools and is always entry-pointed;
-    # its presence proves discovery worked.
-    assert "ping" in names
+    assert "ping" in captured.out
+
+
+def test_tools_list_table_shows_category_headers(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Table view groups tools by category (Schematic, PCB, Library, Diagnostics)."""
+    rc = main(["tools", "list"])
+    assert rc == 0
+    captured = capsys.readouterr()
+    if not captured.out.strip():
+        pytest.skip("no tools discovered in this environment")
+    # Strip ANSI codes for matching.
+    import re
+
+    clean = re.sub(r"\033\[[0-9;]*m", "", captured.out)
+    assert "Schematic" in clean
+    assert "PCB" in clean
+    assert "Library" in clean
+    assert "Diagnostics" in clean
+
+
+def test_tools_list_json_is_valid(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """``--format json`` produces a JSON array of tool objects."""
+    rc = main(["tools", "list", "--format", "json"])
+    assert rc == 0
+    captured = capsys.readouterr()
+    parsed = json.loads(captured.out)
+    assert isinstance(parsed, list)
+    if not parsed:
+        pytest.skip("no tools discovered in this environment")
+    for entry in parsed:
+        assert "name" in entry
+        assert "version" in entry
+        assert "description" in entry

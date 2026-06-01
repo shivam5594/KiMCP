@@ -26,7 +26,11 @@ from kimcp.backends.swig import SwigBackend
 from kimcp.config import Config, load_config
 from kimcp.errors import INVALID_PARAMS, METHOD_NOT_FOUND, VALIDATION_ERROR, RpcError
 from kimcp.prompts import PromptRegistry
-from kimcp.prompts.builtin import DesignReviewPrompt, ManufacturingHandoffPrompt
+from kimcp.prompts.builtin import (
+    CircuitProposalPrompt,
+    DesignReviewPrompt,
+    ManufacturingHandoffPrompt,
+)
 from kimcp.resources import ResourceProvider
 from kimcp.rpc import JsonRpcHandler, dispatch_loop
 from kimcp.safety import SnapshotPolicy
@@ -138,6 +142,7 @@ class Server:
         # third-party prompts will load through the same mechanism as
         # tools when we see a concrete third party.
         self.prompts = PromptRegistry()
+        self.prompts.register(CircuitProposalPrompt())
         self.prompts.register(DesignReviewPrompt())
         self.prompts.register(ManufacturingHandoffPrompt())
 

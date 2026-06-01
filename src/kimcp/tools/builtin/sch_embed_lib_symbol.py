@@ -139,17 +139,17 @@ class SchEmbedLibSymbolTool(Tool[SchEmbedLibSymbolInput, SchEmbedLibSymbolOutput
     version = "0.2.0"
     description = (
         "Embed a symbol library definition into a schematic's lib_symbols "
-        "block so that sch_add_symbol can place instances. Reads from a "
-        ".kicad_sym file, renames the top-level symbol to lib-qualified "
-        "form, and inserts into the schematic. CALL ONCE PER UNIQUE "
-        "(lib_id, sch_path) PAIR per session — the tool is idempotent "
-        "(re-calls short-circuit with status='already_embedded' without "
-        "mutating), but each repeated call still costs a schematic + "
-        "library parse and an MCP round-trip. If you've already embedded "
-        "a lib_id earlier in this conversation, skip ahead to "
-        "sch_add_symbol directly. Use sch_list_symbols to query what's "
-        "already embedded if uncertain. Supports dry_run; snapshots "
-        "before write per ADR-0008."
+        "block so that sch_add_symbol can place instances. "
+        "IMPORTANT: This is typically the first mutation tool called when "
+        "building a new circuit. Before calling this, ensure you have "
+        "already presented the full design proposal (topology, BOM, "
+        "connectivity) to the user and received explicit approval. "
+        "Reads from a .kicad_sym file, renames the top-level symbol to "
+        "lib-qualified form, and inserts into the schematic. CALL ONCE "
+        "PER UNIQUE (lib_id, sch_path) PAIR per session — the tool is "
+        "idempotent (re-calls short-circuit with "
+        "status='already_embedded'). Supports dry_run; snapshots before "
+        "write per ADR-0008."
     )
     input_model = SchEmbedLibSymbolInput
     output_model = SchEmbedLibSymbolOutput

@@ -19,7 +19,11 @@ import pytest
 
 from kimcp.errors import INVALID_PARAMS, METHOD_NOT_FOUND, RpcError
 from kimcp.prompts import Prompt, PromptArgument, PromptRegistry
-from kimcp.prompts.builtin import DesignReviewPrompt, ManufacturingHandoffPrompt
+from kimcp.prompts.builtin import (
+    CircuitProposalPrompt,
+    DesignReviewPrompt,
+    ManufacturingHandoffPrompt,
+)
 
 
 class _StubPrompt(Prompt):
@@ -322,3 +326,61 @@ def test_manufacturing_handoff_fab_profile_when_provided() -> None:
     )
     text = body["messages"][0]["content"]["text"]
     assert "JLCPCB-2L" in text
+
+
+# -- circuit-proposal ------------------------------------------------------
+
+
+def test_circuit_proposal_renders_with_requirement() -> None:
+    """The rendered message must include the requirement text, the
+    instruction to NOT call mutation tools, and the approval gate.
+    """
+    reg = PromptRegistry()
+    reg.register(CircuitProposalPrompt())
+    body = reg.render(
+        "circuit-proposal",
+        {"requirement": "32V to 12V buck converter, 3A"},
+    )
+    text = body["messages"][0]["content"]["text"]
+    assert "32V to 12V buck converter, 3A" in text
+    # Must instruct the LLM to stop before mutating.
+    assert "Do NOT call any sch_add_" in text
+    # Must include the approval gate.
+    assert "approval" in text.lower()
+
+
+def test_circuit_proposal_includes_design_sections() -> None:
+    """The template must include structured sections for topology,
+    component selection, parameters, and connectivity.
+    """
+    reg = PromptRegistry()
+    reg.register(CircuitProposalPrompt())
+    body = reg.render(
+        "circuit-proposal",
+        {"requirement": "LDO 5V to 3.3V"},
+    )
+    text = body["messages"][0]["content"]["text"]
+    assert "Topology" in text
+    assert "Component Selection" in text
+    assert "Design Parameters" in text
+    assert "Connectivity" in text
+
+
+def test_circuit_proposal_requires_requirement_arg() -> None:
+    reg = PromptRegistry()
+    reg.register(CircuitProposalPrompt())
+    with pytest.raises(RpcError) as exc_info:
+        reg.render("circuit-proposal", {})
+    assert exc_info.value.code == INVALID_PARAMS
+
+
+def test_circuit_proposal_sch_path_is_optional() -> None:
+    """sch_path is optional — the prompt should work without it."""
+    reg = PromptRegistry()
+    reg.register(CircuitProposalPrompt())
+    body = reg.render(
+        "circuit-proposal",
+        {"requirement": "boost converter 5V to 12V"},
+    )
+    # Should render successfully without sch_path.
+    assert len(body["messages"]) == 1

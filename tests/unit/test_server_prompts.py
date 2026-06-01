@@ -57,7 +57,7 @@ async def test_prompts_list_returns_both_builtins(server: Server) -> None:
     assert result is not None
     listing = result["result"]["prompts"]
     names = {entry["name"] for entry in listing}
-    assert names == {"design-review", "manufacturing-handoff"}
+    assert names == {"circuit-proposal", "design-review", "manufacturing-handoff"}
 
 
 @pytest.mark.asyncio
