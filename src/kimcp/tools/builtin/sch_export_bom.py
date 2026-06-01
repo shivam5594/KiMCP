@@ -202,12 +202,14 @@ class SchExportBomTool(Tool[SchExportBomInput, SchExportBomOutput]):
     version = "0.1.0"
     description = (
         "Export a .kicad_sch file to a Bill of Materials via "
-        "`kicad-cli sch export bom`. Supports csv (default), tsv, html, "
-        "and xml formats; optional named preset selection for "
-        "designer-defined field/group-by layouts; and exclude_dnp for "
-        "fab-ready output. Returns the resolved output path, size, and "
-        "the argv invoked. Supports dry_run to preview the invocation "
-        "without writing any files."
+        "`kicad-cli sch export bom`. "
+        "NAMING: Use a descriptive output_path that identifies the "
+        "project or subcircuit (e.g. controller_board_bom.csv, not "
+        "bom.csv). For multi-schematic projects, include context in the "
+        "filename so BOMs are distinguishable. "
+        "Supports csv (default), tsv, html, and xml formats; optional "
+        "named preset selection for designer-defined field/group-by "
+        "layouts; and exclude_dnp for fab-ready output. Supports dry_run."
     )
     input_model = SchExportBomInput
     output_model = SchExportBomOutput

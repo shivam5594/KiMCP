@@ -201,12 +201,18 @@ class SchExportNetlistTool(Tool[SchExportNetlistInput, SchExportNetlistOutput]):
     version = "0.1.0"
     description = (
         "Export a .kicad_sch file to a netlist via `kicad-cli sch export "
-        "netlist`. Supports eight formats covering PCB import "
+        "netlist`. "
+        "NAMING: When output_path is omitted, the netlist is named after "
+        "the schematic stem (e.g. dcdc.kicad_sch → dcdc.net). For projects "
+        "with a single top-level schematic, use the project name as the "
+        "netlist name (e.g. controller_board.net). For multi-schematic "
+        "projects or subcircuit exports, use a descriptive name that "
+        "captures the circuit's function (e.g. 32v_12v_buck_converter.net, "
+        "not dcdc.net). Pass output_path explicitly to control naming. "
+        "Supports eight formats covering PCB import "
         "(kicadsexpr — default), BOM tooling (kicadxml), SPICE simulation "
         "(spice, spicemodel), and legacy CAD interop (cadstar, orcadpcb2, "
-        "pads, allegro). Returns the resolved output path, size, and the "
-        "argv invoked. Supports dry_run to preview the invocation without "
-        "writing any files."
+        "pads, allegro). Supports dry_run."
     )
     input_model = SchExportNetlistInput
     output_model = SchExportNetlistOutput
